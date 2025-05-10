@@ -1,6 +1,5 @@
-import pygame
+import pygame  # type: ignore
 import os
-import neat
 import random
 import time
 import sys
@@ -162,57 +161,72 @@ def draw_window(win, bird, pipes , base):
     bird.draw(win)
     pygame.display.update()
 
-def main():
-    bird = Bird(230, 350)
-    base = Base(730)
-    pipes = [Pipe(700)]
-    win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-    clock = pygame.time.Clock()
-    font = pygame.font.SysFont('comicsans', 30)  # Initialize font
+class GamePlay:
+    def __init__(self):
+        self.score = 0
+        self.bird = Bird(230, 350)
+        self.run = True
+        self.base = Base(730)
+        self.pipes = [Pipe(700)]
+        self.clock = pygame.time.Clock()
+        self.font = pygame.font.SysFont('comicsans', 30)  # Initialize font
+        self.add_pipe = False
+        self.rem = []
 
-    run = True
-    score = 0  # Initialize score
-    while run:
-        clock.tick(30)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    bird.jump()
+    def reset(self):
+        self.score = 0
+        self.bird = Bird(230, 350)  
+        self.pipes = [Pipe(700)]  
+        self.add_pipe = False
+        self.rem = []
 
-        bird.move()
 
-        add_pipe = False
-        rem = []
-        for pipe in pipes:
-            if pipe.collide(bird):
-                run = False
+
+    def dectection(self):
+        
+        for pipe in self.pipes:
+            if pipe.collide(self.bird):
+                self.reset()
             if pipe.x + pipe.PIPE_TOP.get_width() < 0:
-                rem.append(pipe)
+                self.rem.append(pipe)
 
-            if not pipe.passed and pipe.x < bird.x:
+            if not pipe.passed and pipe.x < self.bird.x:
                 pipe.passed = True
-                add_pipe = True
+                self.add_pipe = True
             pipe.move()
 
-        if add_pipe:
-            score += 1 
-            print(score) # Update score
-            pipes.append(Pipe(700))
+        if self.add_pipe:
+            self.score += 1 
+            print(self.score) # Update score
+            self.pipes.append(Pipe(700))
 
-        for r in rem:
-            pipes.remove(r)
+        for r in self.rem:
+            self.pipes.remove(r)
 
-        if bird.y + bird.img.get_height() >= 730:
-            run = False
+        if self.bird.y + self.bird.img.get_height() >= 730:
+            self.run = False
 
-        base.move()
-        draw_window(win, bird, pipes, base)
+def main():
+    
+    game = GamePlay()
+    win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    
+    while game.run:
+        game.clock.tick(30)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game.run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game.bird.jump()
+        game.dectection()
+        game.bird.move()
+
+        game.base.move()
+        draw_window(win, game.bird, game.pipes, game.base)
 
         # Render score
-        score_text = font.render('Score: ' + str(score), True, (255, 255, 255))
-
+        score_text = game.font.render('Score: ' + str(game.score), True, (255, 255, 255))
         # Blit score onto the screen
         win.blit(score_text, (10, 10))
 
