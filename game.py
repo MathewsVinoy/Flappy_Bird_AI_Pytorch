@@ -170,37 +170,36 @@ class GamePlay:
         self.pipes = [Pipe(700)]
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont('comicsans', 30)  # Initialize font
-        self.add_pipe = False
-        self.rem = []
 
     def reset(self):
         self.score = 0
         self.bird = Bird(230, 350)  
         self.pipes = [Pipe(700)]  
-        self.add_pipe = False
-        self.rem = []
+
 
 
 
     def dectection(self):
-        
+
+        add_pipe = False
+        rem =[]
         for pipe in self.pipes:
             if pipe.collide(self.bird):
                 self.reset()
             if pipe.x + pipe.PIPE_TOP.get_width() < 0:
-                self.rem.append(pipe)
+                rem.append(pipe)
 
             if not pipe.passed and pipe.x < self.bird.x:
                 pipe.passed = True
-                self.add_pipe = True
+                add_pipe = True
             pipe.move()
 
-        if self.add_pipe:
+        if add_pipe:
             self.score += 1 
             print(self.score) # Update score
             self.pipes.append(Pipe(700))
 
-        for r in self.rem:
+        for r in rem:
             self.pipes.remove(r)
 
         if self.bird.y + self.bird.img.get_height() >= 730:
