@@ -14,7 +14,7 @@ class Agent:
         self.memory = deque(maxlen=MAX_MEMORY)
         self.model = Model()
         # Todo : create and import trainer class
-        self.bird = Bird()
+        
 
     def get_state(self,bird):
         pass
