@@ -174,7 +174,10 @@ class GamePlay:
     def reset(self):
         self.score = 0
         self.bird = Bird(230, 350)  
-        self.pipes = [Pipe(700)]  
+        self.pipes = [Pipe(700)]
+
+    def state(self):
+        bird.y, abs(bird.y - pipes[pipe_ind].height), abs(bird.y - pipes[pipe_ind].bottom)  
 
 
 
