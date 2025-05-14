@@ -178,8 +178,8 @@ class GamePlay:
         self.pipes = [Pipe(700)]
 
     def state(self):
-        topdistance=abs(bird.y - pipes[self.score].height)
-        bottamdistance=abs(bird.y - pipes[self.score].bottom)  
+        topdistance=abs(self.bird.y - self.pipes[self.score].height)
+        bottamdistance=abs(self.bird.y - self.pipes[self.score].bottom)  
         state=[self.bird.y,topdistance,
             bottamdistance
         ]
