@@ -3,6 +3,7 @@ import os
 import random
 import time
 import sys
+import numpy as np
 
 pygame.init()
 WIN_WIDTH = 500
@@ -177,8 +178,11 @@ class GamePlay:
         self.pipes = [Pipe(700)]
 
     def state(self):
-        bird.y, abs(bird.y - pipes[pipe_ind].height), abs(bird.y - pipes[pipe_ind].bottom)  
-
+        topdistance=abs(bird.y - pipes[self.score].height)
+        bottamdistance=abs(bird.y - pipes[self.score].bottom)  
+        state=[self.bird.y,topdistance,
+            bottamdistance
+        ]
 
 
 
