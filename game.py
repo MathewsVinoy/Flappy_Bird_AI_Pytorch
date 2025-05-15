@@ -180,10 +180,12 @@ class GamePlay:
     def state(self):
         topdistance=abs(self.bird.y - self.pipes[self.score].height)
         bottamdistance=abs(self.bird.y - self.pipes[self.score].bottom)  
-        state=[self.bird.y,topdistance,
+        state=[
+            self.bird.y,
+            topdistance,
             bottamdistance
         ]
-        return state
+        np.array(state, dtype=int)
 
 
 
