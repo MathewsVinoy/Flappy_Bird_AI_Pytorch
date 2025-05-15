@@ -183,6 +183,7 @@ class GamePlay:
         state=[self.bird.y,topdistance,
             bottamdistance
         ]
+        return state
 
 
 
