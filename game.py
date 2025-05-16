@@ -102,7 +102,7 @@ class Pipe:
 
     def set_height(self):
         self.height= random.randrange(50,450)
-        self.top = self.height- self.PIPE_TOP.get_height()
+        self.top = self.height - self.PIPE_TOP.get_height()
         self.bottom = self.height+self.GAP
 
     def move(self):
@@ -178,8 +178,8 @@ class GamePlay:
         self.pipes = [Pipe(700)]
 
     def state(self):
-        topdistance=abs(self.bird.y - self.pipes[self.score].height)
-        bottamdistance=abs(self.bird.y - self.pipes[self.score].bottom)  
+        topdistance = abs(self.bird.y - self.pipes[self.score].height)
+        bottamdistance = abs(self.bird.y - self.pipes[self.score].bottom)  
         state=[
             self.bird.y,
             topdistance,
