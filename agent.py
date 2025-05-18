@@ -49,7 +49,10 @@ class Agent:
         return final_move
     
 def train():
-    pass
+    total_score =0
+    record =0
+    agent = Agent()
+    
 
 if __name__ == "__main__":
     train()
