@@ -178,7 +178,7 @@ class GamePlay:
         self.pipes = [Pipe(700)]
         self.frame_iteration = 0
 
-    def state(self):
+    def get_state(self):
         topdistance = abs(self.bird.y - self.pipes[self.score].height)
         bottamdistance = abs(self.bird.y - self.pipes[self.score].bottom)  
         state=[
@@ -194,6 +194,33 @@ class GamePlay:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+        if action == 1:
+            self.bird.jump()
+        reward=0
+        game_over = False
+        add_pipe = False
+        rem =[]
+        for pipe in self.pipes:
+            if pipe.collide(self.bird):
+                self.reset()
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                rem.append(pipe)
+
+            if not pipe.passed and pipe.x < self.bird.x:
+                pipe.passed = True
+                add_pipe = True
+            pipe.move()
+
+        if add_pipe:
+            self.score += 1 
+            print(self.score) # Update score
+            self.pipes.append(Pipe(700))
+
+        for r in rem:
+            self.pipes.remove(r)
+
+        if self.bird.y + self.bird.img.get_height() >= 730:
+            self.run = False
 
 
 
