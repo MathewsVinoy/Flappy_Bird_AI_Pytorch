@@ -1,6 +1,6 @@
 from collections import deque
 from model import Model
-from game import Bird
+from game import GamePlay
 import random
 from Qtrainer import QTrainer
 
@@ -52,6 +52,7 @@ def train():
     total_score =0
     record =0
     agent = Agent()
+    game = GamePlay()
     
 
 if __name__ == "__main__":
