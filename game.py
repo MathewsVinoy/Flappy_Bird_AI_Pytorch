@@ -176,6 +176,7 @@ class GamePlay:
         self.score = 0
         self.bird = Bird(230, 350)  
         self.pipes = [Pipe(700)]
+        self.frame_iteration = 0
 
     def state(self):
         topdistance = abs(self.bird.y - self.pipes[self.score].height)
@@ -186,6 +187,13 @@ class GamePlay:
             bottamdistance
         ]
         np.array(state, dtype=int)
+    
+    def play_step(self, action):
+        self.frame_iteration +=1
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
 
 
 
