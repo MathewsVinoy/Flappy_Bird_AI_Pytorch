@@ -3,6 +3,7 @@ from model import Model
 from game import GamePlay
 import random
 from Qtrainer import QTrainer
+import torch
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
@@ -34,25 +35,29 @@ class Agent:
     def train_short_memory(self,state, action, reward, next_state, done):
         self.trainer.train_step(state,action,reward,next_state,done)
 
-    def get_action(self,state):
-        # random moves : explotion or exploration
-        self.epsilon = 80-self.n_games
-        final_move =[0,0,0]
-        if random.randint(0,200) <self.epsilon:
-            move = random.randint(0,2)
-            final_move[move]=1
+    def get_action(self, state):
+        self.epsilon = 80 - self.n_games
+
+        if random.randint(0, 200) < self.epsilon:
+
+            move = random.randint(0, 2)
         else:
-            state0=torch.tensor(state, dtype=torch.float)
+            state0 = torch.tensor(state, dtype=torch.float)
             prediction = self.model(state0)
             move = torch.argmax(prediction).item()
-            final_move[move]=1
-        return final_move
+
+        return 1 if move == 0 else 0
+
     
 def train():
     total_score =0
     record =0
     agent = Agent()
     game = GamePlay()
+    while True:
+        state_old = agent.get_state(game)
+        final_move = agent.get_action(state_old)
+        reward, done, score = game.play_step(final_move)
     
 
 if __name__ == "__main__":
