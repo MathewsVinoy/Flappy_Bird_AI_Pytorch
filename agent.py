@@ -37,7 +37,6 @@ class Agent:
 
     def get_action(self, state):
         self.epsilon = 80 - self.n_games
-
         if random.randint(0, 200) < self.epsilon:
 
             move = random.randint(0, 2)
@@ -55,9 +54,11 @@ def train():
     agent = Agent()
     game = GamePlay()
     while True:
-        state_old = agent.get_state(game)
+        state_old = game.get_state()
         final_move = agent.get_action(state_old)
+        print(final_move)
         reward, done, score = game.play_step(final_move)
+        
     
 
 if __name__ == "__main__":
