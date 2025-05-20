@@ -202,7 +202,10 @@ class GamePlay:
         rem =[]
         for pipe in self.pipes:
             if pipe.collide(self.bird):
-                self.reset()
+                game_over=True
+                reward=-10
+                return reward, game_over, self.score
+            
             if pipe.x + pipe.PIPE_TOP.get_width() < 0:
                 rem.append(pipe)
 
@@ -212,7 +215,8 @@ class GamePlay:
             pipe.move()
 
         if add_pipe:
-            self.score += 1 
+            self.score += 1
+            reward =10 
             print(self.score) # Update score
             self.pipes.append(Pipe(700))
 
@@ -220,7 +224,9 @@ class GamePlay:
             self.pipes.remove(r)
 
         if self.bird.y + self.bird.img.get_height() >= 730:
-            self.run = False
+            game_over=True
+            reward=-10
+            return reward, game_over, self.score
 
 
 
