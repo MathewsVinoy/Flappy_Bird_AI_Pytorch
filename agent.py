@@ -58,6 +58,7 @@ def train():
         final_move = agent.get_action(state_old)
         print(final_move)
         reward, done, score = game.play_step(final_move)
+        state_new = game.get_state()
         
     
 
