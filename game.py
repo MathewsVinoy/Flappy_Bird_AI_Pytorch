@@ -8,6 +8,7 @@ import numpy as np
 pygame.init()
 WIN_WIDTH = 500
 WIN_HEIGHT = 800
+SPEED = 20
 
 BIRD_IMGS = [
     pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird1.png"))),
@@ -227,7 +228,9 @@ class GamePlay:
             game_over=True
             reward=-10
             return reward, game_over, self.score
-
+        
+        self.clock.tick(SPEED)
+        return reward, game_over, self.score
 
 
     def dectection(self):
