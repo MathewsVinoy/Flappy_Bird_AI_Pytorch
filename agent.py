@@ -15,7 +15,7 @@ class Agent:
         self.epsilon = 0
         self.gamma = 0.9
         self.memory = deque(maxlen=MAX_MEMORY)
-        self.model = Model()
+        self.model = Model(3,256,1)
         # Todo : create and import trainer class
         self.trainer =QTrainer(self.model, lr=LR, gamma=self.gamma)
 
@@ -36,16 +36,16 @@ class Agent:
         self.trainer.train_step(state,action,reward,next_state,done)
 
     def get_action(self, state):
-        self.epsilon = 80 - self.n_games
-        if random.randint(0, 200) < self.epsilon:
-
-            move = random.randint(0, 2)
+        self.epsilon = 80 - self.n_game
+        print(self.epsilon)
+        if random.randint(0, 80) < self.epsilon:
+            move = 1
         else:
             state0 = torch.tensor(state, dtype=torch.float)
-            prediction = self.model(state0)
+            prediction = self.model(state)
             move = torch.argmax(prediction).item()
 
-        return 1 if move == 0 else 0
+        return move
 
     
 def train():
@@ -55,11 +55,22 @@ def train():
     game = GamePlay()
     while True:
         state_old = game.get_state()
+        print(state_old)
         final_move = agent.get_action(state_old)
         print(final_move)
         reward, done, score = game.play_step(final_move)
         state_new = game.get_state()
-        
+        agent.train_short_memory(state_old, final_move, reward, state_new,done)
+        agent.remember(state_old,final_move,reward,state_new,done)
+        if done:
+            game.reset()
+            agent.n_games +=1
+            agent.train_long_memory()
+
+            if score > record:
+                recode = score
+                agent.model.save()
+            print("Game ",agent.n_games, " Score ",score," Record ", record)
     
 
 if __name__ == "__main__":
