@@ -15,13 +15,16 @@ class Agent:
         self.epsilon = 0
         self.gamma = 0.9
         self.memory = deque(maxlen=MAX_MEMORY)
-        self.model = Model(3,256,1)
+        self.model = Model(3,1024,2)
         # Todo : create and import trainer class
         self.trainer =QTrainer(self.model, lr=LR, gamma=self.gamma)
 
 
     def remember(self,state, action, reward, next_state, done):
         self.memory.append((state,action,reward,next_state,done))
+    
+    def clean_memory(self):
+        pass
 
     def train_long_memory(self):
         if len(self.memory)>BATCH_SIZE:
@@ -35,17 +38,20 @@ class Agent:
     def train_short_memory(self,state, action, reward, next_state, done):
         self.trainer.train_step(state,action,reward,next_state,done)
 
-    def get_action(self, state):
-        self.epsilon = 80 - self.n_game
-        print(self.epsilon)
-        if random.randint(0, 80) < self.epsilon:
-            move = 1
+    def get_action(self,state):
+        # random moves : explotion or exploration
+        self.epsilon = 80-self.n_game
+        final_move =[0,0]
+        if random.randint(0,200) <self.epsilon:
+            move = random.randint(0,1)
+            final_move[move]=1
         else:
-            state0 = torch.tensor(state, dtype=torch.float)
-            prediction = self.model(state)
+            state0=torch.tensor(state, dtype=torch.float)
+            prediction = self.model(state0)
             move = torch.argmax(prediction).item()
+            final_move[move]=1
+        return final_move
 
-        return move
 
     
 def train():
@@ -55,22 +61,22 @@ def train():
     game = GamePlay()
     while True:
         state_old = game.get_state()
-        print(state_old)
+        # print(state_old)
         final_move = agent.get_action(state_old)
-        print(final_move)
+        # print(final_move)
         reward, done, score = game.play_step(final_move)
         state_new = game.get_state()
         agent.train_short_memory(state_old, final_move, reward, state_new,done)
         agent.remember(state_old,final_move,reward,state_new,done)
         if done:
             game.reset()
-            agent.n_games +=1
+            agent.n_game +=1
             agent.train_long_memory()
 
             if score > record:
-                recode = score
+                record = score
                 agent.model.save()
-            print("Game ",agent.n_games, " Score ",score," Record ", record)
+            print("Game ",agent.n_game, " Score ",score," Record ", record, "Reward: ", reward)
     
 
 if __name__ == "__main__":
