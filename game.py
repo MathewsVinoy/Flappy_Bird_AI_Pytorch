@@ -8,7 +8,7 @@ import numpy as np
 pygame.init()
 WIN_WIDTH = 500
 WIN_HEIGHT = 800
-SPEED = 20
+SPEED = 30
 
 BIRD_IMGS = [
     pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird1.png"))),
@@ -172,6 +172,9 @@ class GamePlay:
         self.pipes = [Pipe(700)]
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont('comicsans', 30)  # Initialize font
+        self.frame_iteration = 0
+        self.win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+
 
     def reset(self):
         self.score = 0
@@ -180,14 +183,19 @@ class GamePlay:
         self.frame_iteration = 0
 
     def get_state(self):
-        topdistance = abs(self.bird.y - self.pipes[self.score].height)
-        bottamdistance = abs(self.bird.y - self.pipes[self.score].bottom)  
+        pipe_ind = 0
+        if len(self.pipes) > 1 and self.bird.x > self.pipes[0].x + self.pipes[0].PIPE_TOP.get_width(): 
+            pipe_ind = 1 
+
+        topdistance = abs(self.bird.y - self.pipes[pipe_ind].height)
+        bottamdistance = abs(self.bird.y - self.pipes[pipe_ind].bottom)
+
         state=[
             self.bird.y,
             topdistance,
             bottamdistance
         ]
-        np.array(state, dtype=int)
+        return np.array(state, dtype=int)
     
     def play_step(self, action):
         self.frame_iteration +=1
@@ -195,14 +203,16 @@ class GamePlay:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-        if action == 1:
+        
+        if np.array_equal(action,[1,0]):
             self.bird.jump()
         reward=0
+          
         game_over = False
         add_pipe = False
         rem =[]
         for pipe in self.pipes:
-            if pipe.collide(self.bird):
+            if pipe.collide(self.bird) :
                 game_over=True
                 reward=-10
                 return reward, game_over, self.score
@@ -217,19 +227,34 @@ class GamePlay:
 
         if add_pipe:
             self.score += 1
-            reward =10 
+            reward = 10 
             print(self.score) # Update score
             self.pipes.append(Pipe(700))
 
         for r in rem:
             self.pipes.remove(r)
 
-        if self.bird.y + self.bird.img.get_height() >= 730:
+        if self.bird.y + self.bird.img.get_height() >= 730 :
             game_over=True
             reward=-10
             return reward, game_over, self.score
         
+        if self.bird.y < 0:
+            game_over=True
+            reward=-10
+            return reward, game_over, self.score 
+        
         self.clock.tick(SPEED)
+        self.bird.move()
+
+        self.base.move()
+        draw_window(self.win, self.bird, self.pipes, self.base)
+
+        # Render score
+        score_text = self.font.render('Score: ' + str(self.score), True, (255, 255, 255))
+        # Blit score onto the screen
+        self.win.blit(score_text, (10, 10))
+
         return reward, game_over, self.score
 
 
@@ -254,6 +279,7 @@ class GamePlay:
             self.pipes.append(Pipe(700))
 
         for r in rem:
+            self.pipe_ind=0
             self.pipes.remove(r)
 
         if self.bird.y + self.bird.img.get_height() >= 730:
