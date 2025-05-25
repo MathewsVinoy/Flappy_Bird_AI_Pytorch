@@ -1,5 +1,6 @@
 import  torch  
 from torch import nn, optim 
+from model import Model
 
 class QTrainer:
     def __init__(self, model, lr, gamma):
@@ -31,7 +32,12 @@ class QTrainer:
             if not done[idx]:
                 Q_new = reward[idx] +self.gamma * torch.max(self.model(next_state[idx]))
 
-            target[idx][torch.argmax(action).item()] = Q_new
+            action_idx = torch.argmax(action).item()
+            if action_idx >= pred.shape[1]:
+                print(f"Action index {action_idx} is out of bounds for pred shape {pred.shape}")
+                action_idx = pred.shape[1] - 1  # Clamp to the last valid index
+
+            target[idx][action_idx] = Q_new
 
         # 2: Q_new = r+y* max(next_predicted Q value)
         # pred.clone()
