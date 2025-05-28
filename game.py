@@ -174,13 +174,16 @@ class GamePlay:
         self.font = pygame.font.SysFont('comicsans', 30)  # Initialize font
         self.frame_iteration = 0
         self.win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+        self.reward =0
 
 
     def reset(self):
         self.score = 0
         self.bird = Bird(230, 350)  
         self.pipes = [Pipe(700)]
+        self.base = Base(730)
         self.frame_iteration = 0
+        self.reward = 0
 
     def get_state(self):
         pipe_ind = 0
@@ -206,7 +209,7 @@ class GamePlay:
         
         if np.array_equal(action,[1,0]):
             self.bird.jump()
-        reward=0
+        # reward=0
           
         game_over = False
         add_pipe = False
@@ -214,8 +217,8 @@ class GamePlay:
         for pipe in self.pipes:
             if pipe.collide(self.bird) :
                 game_over=True
-                reward=-10
-                return reward, game_over, self.score
+                self.reward-=10
+                return self.reward, game_over, self.score
             
             if pipe.x + pipe.PIPE_TOP.get_width() < 0:
                 rem.append(pipe)
@@ -227,7 +230,7 @@ class GamePlay:
 
         if add_pipe:
             self.score += 1
-            reward = 10 
+            self.reward += 1
             print(self.score) # Update score
             self.pipes.append(Pipe(700))
 
@@ -236,13 +239,13 @@ class GamePlay:
 
         if self.bird.y + self.bird.img.get_height() >= 730 :
             game_over=True
-            reward=-10
-            return reward, game_over, self.score
+            self.reward-=10
+            return self.reward, game_over, self.score
         
         if self.bird.y < 0:
             game_over=True
-            reward=-10
-            return reward, game_over, self.score 
+            self.reward-=10
+            return self.reward, game_over, self.score 
         
         self.clock.tick(SPEED)
         self.bird.move()
@@ -255,7 +258,7 @@ class GamePlay:
         # Blit score onto the screen
         self.win.blit(score_text, (10, 10))
 
-        return reward, game_over, self.score
+        return self.reward, game_over, self.score
 
 
     def dectection(self):
