@@ -57,26 +57,28 @@ class Agent:
 def train():
     total_score =0
     record =0
+    birds=[]
     agent = Agent()
     game = GamePlay()
     while True:
-        state_old = game.get_state()
-        # print(state_old)
-        final_move = agent.get_action(state_old)
-        # print(final_move)
-        reward, done, score = game.play_step(final_move)
-        state_new = game.get_state()
-        agent.train_short_memory(state_old, final_move, reward, state_new,done)
-        agent.remember(state_old,final_move,reward,state_new,done)
-        if done:
-            game.reset()
-            agent.n_game +=1
-            agent.train_long_memory()
+        for i in range(10):
+            state_old = game.get_state()
+            # print(state_old)
+            final_move = agent.get_action(state_old)
+            # print(final_move)
+            reward, done, score = game.play_step(final_move)
+            state_new = game.get_state()
+            agent.train_short_memory(state_old, final_move, reward, state_new,done)
+            agent.remember(state_old,final_move,reward,state_new,done)
+            if done:
+                game.reset()
+                agent.n_game +=1
+                agent.train_long_memory()
 
-            if score > record:
-                record = score
-                agent.model.save()
-            print("Game ",agent.n_game, " Score ",score," Record ", record, "Reward: ", reward)
+                if score > record:
+                    record = score
+                    agent.model.save()
+                print("Game ",agent.n_game, " Score ",score," Record ", record, "Reward: ", reward)
     
 
 if __name__ == "__main__":
