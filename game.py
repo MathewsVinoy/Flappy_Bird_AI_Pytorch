@@ -253,10 +253,6 @@ class GamePlay:
         self.base.move()
         draw_window(self.win, self.bird, self.pipes, self.base)
 
-        # Render score
-        score_text = self.font.render('Score: ' + str(self.score), True, (255, 255, 255))
-        # Blit score onto the screen
-        self.win.blit(score_text, (10, 10))
 
         return self.reward, game_over, self.score
 
