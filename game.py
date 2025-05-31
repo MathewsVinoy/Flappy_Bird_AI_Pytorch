@@ -166,7 +166,7 @@ def draw_window(win, bird, pipes , base):
 class GamePlay:
     def __init__(self):
         self.score = 0
-        self.bird = Bird(230, 350)
+        self.birds = [Bird(230, 350)]*10
         self.run = True
         self.base = Base(730)
         self.pipes = [Pipe(700)]
@@ -179,7 +179,7 @@ class GamePlay:
 
     def reset(self):
         self.score = 0
-        self.bird = Bird(230, 350)  
+        self.birds = [Bird(230, 350)]*10
         self.pipes = [Pipe(700)]
         self.base = Base(730)
         self.frame_iteration = 0
@@ -187,17 +187,17 @@ class GamePlay:
 
     def get_state(self):
         pipe_ind = 0
-        if len(self.pipes) > 1 and self.bird.x > self.pipes[0].x + self.pipes[0].PIPE_TOP.get_width(): 
-            pipe_ind = 1 
-
-        topdistance = abs(self.bird.y - self.pipes[pipe_ind].height)
-        bottamdistance = abs(self.bird.y - self.pipes[pipe_ind].bottom)
-
-        state=[
-            self.bird.y,
-            topdistance,
-            bottamdistance
-        ]
+        state =[]
+        for bird in self.birds:
+            if len(self.pipes) > 1 and bird.x > self.pipes[0].x + self.pipes[0].PIPE_TOP.get_width(): 
+                pipe_ind = 1 
+            topdistance = abs(bird.y - self.pipes[pipe_ind].height)
+            bottamdistance = abs(bird.y - self.pipes[pipe_ind].bottom)
+            state=[
+                bird.y,
+                topdistance,
+                bottamdistance
+            ]
         return np.array(state, dtype=int)
     
     def play_step(self, action):
@@ -214,25 +214,25 @@ class GamePlay:
         game_over = False
         add_pipe = False
         rem =[]
-        for pipe in self.pipes:
-            if pipe.collide(self.bird) :
-                game_over=True
-                self.reward-=10
-                return self.reward, game_over, self.score
-            
-            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
-                rem.append(pipe)
+        for bird in self.birds:
+            for pipe in self.pipes:
+                if pipe.collide(bird) :
+                    game_over=True
+                    self.reward-=10
+                    return self.reward, game_over, self.score
+                
+                if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                    rem.append(pipe)
 
-            if not pipe.passed and pipe.x < self.bird.x:
-                pipe.passed = True
-                add_pipe = True
-            pipe.move()
+                if not pipe.passed and pipe.x < self.bird.x:
+                    pipe.passed = True
+                    add_pipe = True
+                pipe.move()
 
-        if add_pipe:
-            self.score += 1
-            self.reward += 1
-            print(self.score) # Update score
-            self.pipes.append(Pipe(700))
+            if add_pipe:
+                self.score += 1
+                self.reward += 1
+                self.pipes.append(Pipe(700))
 
         for r in rem:
             self.pipes.remove(r)
@@ -312,4 +312,5 @@ def main():
     quit()
 
 if __name__ == "__main__":
-    main()
+    g= GamePlay()
+    print(len(g.birds))
