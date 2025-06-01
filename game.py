@@ -153,14 +153,15 @@ class Base:
         win.blit(self.IMG, (self.x1, self.y))
         win.blit(self.IMG, (self.x2, self.y))
 
-def draw_window(win, bird, pipes , base):
+def draw_window(win, birds, pipes , base):
     win.blit(BG_IMG, (0, 0))
     for pipe in pipes:
         pipe.draw(win)
 
     base.draw(win)
 
-    bird.draw(win)
+    for bird in birds:
+        bird.draw(win)
     pygame.display.update()
 
 class GamePlay:
@@ -201,30 +202,33 @@ class GamePlay:
         return np.array(state, dtype=int)
     
     def play_step(self, action):
+        output=[]
         self.frame_iteration +=1
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
         
-        if np.array_equal(action,[1,0]):
-            self.bird.jump()
-        # reward=0
+        
           
         game_over = False
         add_pipe = False
         rem =[]
         for bird in self.birds:
+            if np.array_equal(action,[1,0]):
+                bird.jump()
             for pipe in self.pipes:
                 if pipe.collide(bird) :
                     game_over=True
                     self.reward-=10
-                    return self.reward, game_over, self.score
+                    self.birds.pop(bird)
+                    result= [self.reward, game_over, self.score]
+                    output.append(result)
                 
                 if pipe.x + pipe.PIPE_TOP.get_width() < 0:
                     rem.append(pipe)
 
-                if not pipe.passed and pipe.x < self.bird.x:
+                if not pipe.passed and pipe.x < bird.x:
                     pipe.passed = True
                     add_pipe = True
                 pipe.move()
@@ -237,24 +241,29 @@ class GamePlay:
         for r in rem:
             self.pipes.remove(r)
 
-        if self.bird.y + self.bird.img.get_height() >= 730 :
-            game_over=True
-            self.reward-=10
-            return self.reward, game_over, self.score
-        
-        if self.bird.y < 0:
-            game_over=True
-            self.reward-=10
-            return self.reward, game_over, self.score 
-        
+        for bird in self.birds:
+            if bird.y + bird.img.get_height() >= 730 :
+                game_over=True
+                self.reward-=10
+                self.birds.pop(bird)
+                result= [self.reward, game_over, self.score]
+                output.append(result)
+            
+            if bird.y < 0:
+                game_over=True
+                self.reward-=10
+                self.birds.pop(bird)
+                result= [self.reward, game_over, self.score]
+                output.append(result)
+            
+            bird.move()
+
         self.clock.tick(SPEED)
-        self.bird.move()
-
         self.base.move()
-        draw_window(self.win, self.bird, self.pipes, self.base)
+        draw_window(self.win, self.birds, self.pipes, self.base)
 
 
-        return self.reward, game_over, self.score
+        return output
 
 
     def dectection(self):
